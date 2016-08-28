@@ -170,16 +170,9 @@ for file in glob.glob(os.path.join(os.getcwd(), 'xyz*.xyz')):
 		dipole_angle = dipole_angle[:h]
 		cosdipole_angle = cosdipole_angle[:h]
 
-	df1 = histogram(dipole_angle)
-	df2 = histogram(OH_angle)
-	cosdipole_angle = cosdipole_angle[~np.isnan(cosdipole_angle)]
-	if len(cosdipole_angle) == 0:
-		pass
-	else:
-		s_tempt = np.empty((len(cosdipole_angle)))
-		s_tempt = (3*cosdipole_angle**2 - 1)/2
-		s[m] = np.mean(s_tempt)
-		m = m +1
+	df1 = histogram(cosdipole_angle)
+	df2 = histogram(cosOH_angle)
+
 	df = pd.concat((df1,df2), axis = 1)
 #	print(df)
 	df.columns = ['dipole angle','r','OH angle','r1']
@@ -187,7 +180,7 @@ for file in glob.glob(os.path.join(os.getcwd(), 'xyz*.xyz')):
 	df.set_index('r', inplace= True)
 	df.to_csv(os.path.join('angle'+ get_number_from_filename(file) +'.csv'), sep= '\t', mode='w')
 
-np.savetxt('s.dat',s)
+
 allfiles = glob.glob(os.path.join(os.getcwd(),'angle*.csv'))
 
 dfnew = pd.concat([pd.read_csv(f, sep='\t') for f in allfiles], axis= 1, keys = [f for f in allfiles])
