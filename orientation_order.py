@@ -1,15 +1,5 @@
 __author__ = 'wenjingg'
 
-# coding: utf-8
-
-# In[1]:
-
-# Purpose :  Compute in-plane oxygen-oxygen, hydrogen-hydrogen, oxygen-hydrogen radial distribtion functions
-# the thickness of the slab is 1 in all cases,
-# when binding the pair distances, we take into account periodic boundary condition.
-
-
-# In[2]:
 
 import sys
 import pandas as pd
@@ -41,10 +31,6 @@ def xyz_parser(path):
 	df = pd.read_csv(path, delim_whitespace= True, skiprows =1, names=['symbol','x','y','z'],)
 	return df
 
-#selection = df[(df['z'] > 14.53 )& (df['z'] < 15.5)]
-#df = selection
-
-#selection = twobody[(twobody['symbols'] == ''.join([A,B])) | (twobody['symbols'] == ''.join([B,A]))]
 
 def map_x_to_y(x,y):
 	mapped = np.empty((len(x), ), dtype= np.int)
@@ -110,15 +96,15 @@ def histogram(hist, dr=4, start=0, end=180):
 
 	return pd.DataFrame.from_dict({'r':r,'hist':hist})
 
-m = len(glob.glob(os.path.join(os.getcwd(), 'xyz*.xyz')))
+dir = r"Z:\\source\\test\\test_pure\\new"
+m = len(glob.glob(os.path.join(dir, 'xyz*.xyz')))
 s = np.empty((m))
 m = 0
-for file in glob.glob(os.path.join(os.getcwd(), 'xyz*.xyz')):
-
+for file in glob.glob(os.path.join(dir, 'xyz*.xyz')):
 	df = xyz_parser(file)
 	refvector = [1,0,0]
-	index1 = df[(df['z'] > 2.5)&(df['symbol'] == 'O')].index.tolist()[0]
-	index2 = df[(df['z'] > 3.5)&(df['symbol'] == 'O')].index.tolist()[0]
+	index1 = df[(df['z'] > 1.5)&(df['symbol'] == 'O')].index.tolist()[0]
+	index2 = df[(df['z'] > 2.5)&(df['symbol'] == 'O')].index.tolist()[0]
 	df = df[index1:index2]
 
 	nat = len(df)
@@ -174,24 +160,22 @@ for file in glob.glob(os.path.join(os.getcwd(), 'xyz*.xyz')):
 	df2 = histogram(cosOH_angle)
 
 	df = pd.concat((df1,df2), axis = 1)
-#	print(df)
 	df.columns = ['dipole angle','r','OH angle','r1']
 	del df['r1']
 	df.set_index('r', inplace= True)
-	df.to_csv(os.path.join('angle'+ get_number_from_filename(file) +'.csv'), sep= '\t', mode='w')
+	df.to_csv(os.path.join(dir,'angle'+ get_number_from_filename(file) +'.csv'), sep= '\t', mode='w')
 
 
-allfiles = glob.glob(os.path.join(os.getcwd(),'angle*.csv'))
+allfiles = glob.glob(os.path.join(dir,'angle*.csv'))
 
 dfnew = pd.concat([pd.read_csv(f, sep='\t') for f in allfiles], axis= 1, keys = [f for f in allfiles])
 
 dfnew = dfnew.swaplevel(0, 1, axis=1).sortlevel(axis=1)
 df = dfnew.groupby(level=0,axis = 1).mean()
-df.to_csv(os.path.join('angle'+'.csv'), sep= '\t', mode='w')
+df.to_csv(os.path.join(dir,'angle'+'.csv'), sep= '\t', mode='w')
 
 plt.plot(df['r'], df['dipole angle'],'r')
 plt.plot(df['r'],df['OH angle'],'b')
-plt.xlim(-90,180)
 plt.show()
 
 
